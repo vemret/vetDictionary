@@ -1,5 +1,6 @@
 package com.example.vetdictionary
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.LinearLayout
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         val c1 = Categories(1,"Vocabulary List","ic_baseline_library_books_24")
         val c2 = Categories(2,"Add a new Word","ic_baseline_library_add_24")
         val c3 = Categories(3,"Exercises","ic_exercises")
-        val c4 = Categories(3,"Important Words","ic_favorite")
+        val c4 = Categories(4,"Important Words","ic_favorite")
         listOfCategories.add(c1)
         listOfCategories.add(c2)
         listOfCategories.add(c3)
@@ -35,6 +36,18 @@ class MainActivity : AppCompatActivity() {
         adapter = CategoryAdapter(this,listOfCategories)
 
         rvHome.adapter = adapter
+    }
+
+    //geri tuşu basılınca tekrar tekrar acılma sorunu
+    override fun onBackPressed() {
+        //ana inten oluşturuldu
+        val intent = Intent(Intent.ACTION_MAIN)
+        //intente home ekranına geri donme özelliği verildi
+        intent.addCategory(Intent.CATEGORY_HOME)
+        //yeni bir görev başlatıldı
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        //intent çalıştırıldı
+        startActivity(intent)
     }
 
 }

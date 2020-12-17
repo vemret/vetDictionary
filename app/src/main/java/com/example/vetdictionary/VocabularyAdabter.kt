@@ -52,6 +52,17 @@ class VocabularyAdabter(private val mContext:Context,private val listofVocabular
             holder.vocabCard.setCardBackgroundColor(Color.parseColor("#E8E8E8"))
         }
 
+        holder.vocabCard.setOnClickListener {
+            val ad = AlertDialog.Builder(mContext)
+
+
+            ad.setMessage(vocab.vocab_turkish)
+            ad.setTitle(vocab.vocab_english)
+            ad.setIcon(R.drawable.ic_alert)
+
+            ad.create().show()
+        }
+
 
         holder.imageViewPopup.setOnClickListener{
             //menu tasarımı bağlandı
@@ -59,7 +70,6 @@ class VocabularyAdabter(private val mContext:Context,private val listofVocabular
             popupMenu.menuInflater.inflate(R.menu.popup_menu,popupMenu.menu)
             popupMenu.show()
             popupMenu.setForceShowIcon(true);
-
 
             //menu işlemleri
             popupMenu.setOnMenuItemClickListener {menuItem ->

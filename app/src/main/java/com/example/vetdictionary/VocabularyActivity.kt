@@ -2,15 +2,19 @@ package com.example.vetdictionary
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_vocabulary.*
 import kotlinx.android.synthetic.main.alertdialog_view.*
 
-class VocabularyActivity : AppCompatActivity() {
+class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var listOfVocabulary:ArrayList<Vocabulary>
     private lateinit var adapter: VocabularyAdabter
@@ -43,6 +47,33 @@ class VocabularyActivity : AppCompatActivity() {
         setSupportActionBar(toolbarVocabulary)
     }
 
+    //search tool
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        //menu tanıtıldı
+        menuInflater.inflate(R.menu.toolbar_menu,menu)
+
+        return true
+    }
+
+    //item seçme
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.actionSearch -> {
+                val searchView = item?.actionView as SearchView
+                searchView.setOnQueryTextListener(this)
+                return true
+            }
+
+            R.id.actionAdd -> {
+                showAlertDialog()
+                return true
+            }
+
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
     // alertdialog bağlantısı
     fun showAlertDialog(){
         val aView = LayoutInflater.from(this).inflate(R.layout.alertdialog_view,null)
@@ -52,19 +83,29 @@ class VocabularyActivity : AppCompatActivity() {
 
         val alertName =AlertDialog.Builder(this)
 
-        alertName.setTitle("Edit Word")
+        alertName.setTitle("Add a new Word")
         alertName.setView(aView)
-        alertName.setPositiveButton("Edit"){ dialogInterface, i ->
+        alertName.setPositiveButton("Add"){ dialogInterface, i ->
             val word_english = editTextEnglish.text.toString().trim()
             val word_pron = editTextPronounce.text.toString().trim()
             val word_turkish = editTextTurkish.text.toString().trim()
 
-            Toast.makeText(applicationContext,"Information Updated!",Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext,"Informations Saved! => $word_english-$word_pron-$word_turkish",Toast.LENGTH_LONG).show()
         }
         alertName.setNegativeButton("Cancel"){ dialogInterface, i ->
 
         }
 
         alertName.create().show()
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        Log.e("gonderilen arama",query!!)
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        Log.e("arama yaptıkça",newText!!)
+        return true
     }
 }
