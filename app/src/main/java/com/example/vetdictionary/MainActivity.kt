@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         listOfCategories.add(c3)
         listOfCategories.add(c4)
 
-        adapter = CategoryAdapter(this,listOfCategories)
+        adapter = CategoryAdapter(this@MainActivity,listOfCategories)
 
         rvHome.adapter = adapter
     }

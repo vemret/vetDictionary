@@ -26,7 +26,7 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
 
         rvVocabulary.setHasFixedSize(true)
-        rvVocabulary.layoutManager = LinearLayoutManager(this)
+        rvVocabulary.layoutManager = LinearLayoutManager(this@VocabularyActivity)
 
         listOfVocabulary = ArrayList()
 
@@ -38,7 +38,7 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         listOfVocabulary.add(v2)
         listOfVocabulary.add(v3)
 
-        adapter = VocabularyAdabter(this,listOfVocabulary)
+        adapter = VocabularyAdabter(this@VocabularyActivity,listOfVocabulary)
         rvVocabulary.adapter = adapter
 
 
@@ -76,12 +76,12 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     // alertdialog bağlantısı
     fun showAlertDialog(){
-        val aView = LayoutInflater.from(this).inflate(R.layout.alertdialog_view,null)
+        val aView = LayoutInflater.from(this@VocabularyActivity).inflate(R.layout.alertdialog_view,null)
         val editTextEnglish = aView.findViewById(R.id.editTextEnglish) as EditText
         val editTextPronounce = aView.findViewById(R.id.editTextPronounce) as EditText
         val editTextTurkish = aView.findViewById(R.id.editTextTurkish) as EditText
 
-        val alertName =AlertDialog.Builder(this)
+        val alertName =AlertDialog.Builder(this@VocabularyActivity)
 
         alertName.setTitle("Add a new Word")
         alertName.setView(aView)

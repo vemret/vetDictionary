@@ -49,6 +49,11 @@ class CategoryAdapter(private val mContext:Context, private val listOfCategories
                 val intent = Intent(mContext, AddActivity::class.java)
                 mContext.startActivity(intent)
             }
+
+            if (holder.textViewListName.text == "Important Words"){
+                val intent = Intent(mContext,ImportantActivity::class.java)
+                mContext.startActivity(intent)
+            }
         }
     }
 }
