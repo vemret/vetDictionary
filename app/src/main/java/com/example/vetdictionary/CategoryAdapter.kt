@@ -54,6 +54,10 @@ class CategoryAdapter(private val mContext:Context, private val listOfCategories
                 val intent = Intent(mContext,ImportantActivity::class.java)
                 mContext.startActivity(intent)
             }
+            if (holder.textViewListName.text == "Quiz"){
+                val intent = Intent(mContext,QuizActivity::class.java)
+                mContext.startActivity(intent)
+            }
         }
     }
 }

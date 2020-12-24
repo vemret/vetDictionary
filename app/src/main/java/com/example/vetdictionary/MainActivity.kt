@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         listOfCategories = ArrayList()
         val c1 = Categories(1,"Vocabulary List","ic_baseline_library_books_24")
         val c2 = Categories(2,"Add a new Word","ic_baseline_library_add_24")
-        val c3 = Categories(3,"Exercises","ic_exercises")
+        val c3 = Categories(3,"Quiz","ic_exercises")
         val c4 = Categories(4,"Important Words","ic_favorite")
         listOfCategories.add(c1)
         listOfCategories.add(c2)

@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ImportantActivity"></activity>
+        <activity android:name=".QuizResultActivity"></activity>
+        <activity android:name=".QuestionActivity" />
+        <activity android:name=".QuizActivity" />
+        <activity android:name=".ImportantActivity" />
         <activity android:name=".AddActivity" />
         <activity android:name=".VocabularyActivity" />
         <activity android:name=".MainActivity">

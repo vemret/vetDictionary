@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -40,10 +41,17 @@ class ImportantAdapter(private val mContext: Context, private val listOfImportan
         holder.tvEnglishImportant.text = important.vocab_english
         holder.tvPronounceImportant.text = important.vocab_pronoun
         holder.imageViewImportant.setOnClickListener {
+            holder.imageViewImportant.setImageResource(R.drawable.ic_star_border)
 
         }
         holder.importantCard.setOnClickListener {
+            val ad = AlertDialog.Builder(mContext)
 
+            ad.setMessage(important.vocab_turkish)
+            ad.setTitle(important.vocab_english)
+            ad.setIcon(R.drawable.ic_alert)
+
+            ad.create().show()
         }
     }
 }
