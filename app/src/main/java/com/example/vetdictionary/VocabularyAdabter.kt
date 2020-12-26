@@ -13,8 +13,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.database.DatabaseReference
 
-class VocabularyAdabter(private val mContext:Context,private val listofVocabulary:List<Vocabulary>) : RecyclerView.Adapter<VocabularyAdabter.CardViewKeeper>() {
+class VocabularyAdabter(private val mContext:Context
+                        ,private val listofVocabulary:List<Vocabulary>
+                        ,private val refVocabulary:DatabaseReference)
+    : RecyclerView.Adapter<VocabularyAdabter.CardViewKeeper>() {
 
     inner class CardViewKeeper(vView: View) : RecyclerView.ViewHolder(vView){
         var vocabCard : CardView
@@ -46,7 +50,7 @@ class VocabularyAdabter(private val mContext:Context,private val listofVocabular
         holder.tvEnglish.text = vocab.vocab_english
         holder.tvPronounce.text = vocab.vocab_pronoun
 
-        if (vocab.vocab_important){
+        if (vocab.vocab_important!!){
             holder.vocabCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
         }else{
             holder.vocabCard.setCardBackgroundColor(Color.parseColor("#E8E8E8"))
@@ -77,7 +81,8 @@ class VocabularyAdabter(private val mContext:Context,private val listofVocabular
                     R.id.actionDelete -> {
                         Snackbar.make(holder.imageViewPopup,"Do you want to delete ${vocab.vocab_english} ?",Snackbar.LENGTH_LONG)
                             .setAction("YES"){
-
+                                //firebase silme
+                                refVocabulary.child(vocab.vocab_id!!).removeValue()
                             }.show()
                         true
                     }
@@ -86,8 +91,8 @@ class VocabularyAdabter(private val mContext:Context,private val listofVocabular
                         true
                     }
                     R.id.actionImportant -> {
-                        vocab.vocab_important = !vocab.vocab_important
-                        if(vocab.vocab_important){
+                        vocab.vocab_important = !vocab.vocab_important!!
+                        if(vocab.vocab_important!!){
                             holder.vocabCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
                             menuItem.setIcon(R.drawable.ic_favorite)
                         }else{
@@ -123,9 +128,22 @@ class VocabularyAdabter(private val mContext:Context,private val listofVocabular
         alertName.setPositiveButton("Edit"){ dialogInterface, i ->
             val word_english = editTextEnglish.text.toString().trim()
             val word_pronoun = editTextPronoun.text.toString().trim()
-            val word_turkish = editTextEnglish.text.toString().trim()
+            val word_turkish = editTextTurkish.text.toString().trim()
 
-            Toast.makeText(mContext,"Information Updated! => $word_english-$word_pronoun-$word_turkish", Toast.LENGTH_SHORT).show()
+            if (word_english.isNotEmpty() && word_pronoun.isNotEmpty() && word_turkish.isNotEmpty()){
+
+                val info = HashMap<String,Any>()
+
+                info.put("vocab_english",word_english)
+                info.put("vocab_pronoun",word_pronoun)
+                info.put("vocab_turkish",word_turkish)
+
+                refVocabulary.child(word.vocab_id!!).updateChildren(info)
+
+                Toast.makeText(mContext,"Information Updated! => $word_english-$word_pronoun-$word_turkish", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(mContext,"Please, fill all of the blanks!", Toast.LENGTH_SHORT).show()
+            }
         }
         alertName.setNegativeButton("Cancel"){ dialogInterface, i ->
 

@@ -7,12 +7,14 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_important.*
 
 class ImportantActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var listOfVocabulary : ArrayList<Vocabulary>
     private lateinit var adapter: ImportantAdapter
+    private lateinit var refImportantVoabulary : DatabaseReference
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,32 +25,50 @@ class ImportantActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         rvImportant.setHasFixedSize(true)
         rvImportant.layoutManager = LinearLayoutManager(this@ImportantActivity)
 
+
+        val db = FirebaseDatabase.getInstance()
+        refImportantVoabulary = db.getReference("vocabulary")
+
         listOfVocabulary = ArrayList()
-        var listOfImportant = ArrayList<Vocabulary>()
 
-        val v1 = Vocabulary(1,"table","teybıl","masa",false)
-        val v2 = Vocabulary(2,"book","buuk","kitap",true)
-        val v3 = Vocabulary(3,"mause","maus","fare",true)
-
-        listOfVocabulary.add(v1)
-        listOfVocabulary.add(v2)
-        listOfVocabulary.add(v3)
-
-        for (i in listOfVocabulary){
-            if (i.vocab_important) {
-                listOfImportant.add(i)
-            }
-        }
-
-
-        adapter = ImportantAdapter(this@ImportantActivity,listOfImportant)
+        adapter = ImportantAdapter(this@ImportantActivity,listOfVocabulary)
         rvImportant.adapter = adapter
 
+        showImportantOfVocabulary(false)
+
+
         toolbarImportant.title = "Important words for you"
-        toolbarImportant.subtitle = "You have ${listOfImportant.size} words"
+        toolbarImportant.subtitle = "You have ${listOfVocabulary.size} words"
         setSupportActionBar(toolbarImportant)
 
     }
+
+    //Favori verileri çağırma
+    fun showImportantOfVocabulary(vocab_important:Boolean){
+        val query = refImportantVoabulary.orderByChild("vocab_important").equalTo(vocab_important)
+        query.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                //verilerin üst üste binemesi için liste temizlendi
+                listOfVocabulary.clear()
+
+                for (c in p0.children){
+                    val nodes = c.getValue(Vocabulary::class.java)
+
+                    if (nodes != null){
+                        nodes.vocab_id = c.key
+                        listOfVocabulary.add(nodes)
+                    }
+                }
+                //node nesnesi değişiklerde adptera aktarılacak
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         //menu tanıtıldı
@@ -62,7 +82,7 @@ class ImportantActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         when(item.itemId){
             R.id.action_search_important -> {
-                val searchView = item?.actionView as SearchView
+                val searchView = item.actionView as SearchView
                 searchView.setOnQueryTextListener(this)
                 return true
             }

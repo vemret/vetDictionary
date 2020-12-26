@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_vocabulary.*
 import kotlinx.android.synthetic.main.alertdialog_view.*
 
@@ -18,33 +19,32 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var listOfVocabulary:ArrayList<Vocabulary>
     private lateinit var adapter: VocabularyAdabter
+    private lateinit var refVocabulary: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vocabulary)
 
-
-
+        //recycle view düzenlemesi
         rvVocabulary.setHasFixedSize(true)
         rvVocabulary.layoutManager = LinearLayoutManager(this@VocabularyActivity)
 
+        //firebase bağlandı
+        val db = FirebaseDatabase.getInstance()
+        refVocabulary = db.getReference("vocabulary")
+
         listOfVocabulary = ArrayList()
-
-        val v1 = Vocabulary(1,"table","teybıl","masa",false)
-        val v2 = Vocabulary(2,"book","buuk","kitap",true)
-        val v3 = Vocabulary(3,"mause","maus","fare",false)
-
-        listOfVocabulary.add(v1)
-        listOfVocabulary.add(v2)
-        listOfVocabulary.add(v3)
-
-        adapter = VocabularyAdabter(this@VocabularyActivity,listOfVocabulary)
+        //adapter bağlantısı
+        adapter = VocabularyAdabter(this@VocabularyActivity,listOfVocabulary,refVocabulary)
         rvVocabulary.adapter = adapter
 
+        showAllOfVocabulary()
 
+        //toolbar bilgisi
         toolbarVocabulary.title = "Vocabulary List"
         toolbarVocabulary.subtitle = "You have ${listOfVocabulary.size} words"
         setSupportActionBar(toolbarVocabulary)
+        
     }
 
     //search tool
@@ -73,6 +73,57 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             else -> return super.onOptionsItemSelected(item)
         }
     }
+    //tüm verileri çağırma
+    fun showAllOfVocabulary(){
+        refVocabulary.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot) {
+                listOfVocabulary.clear()
+
+                for (c in p0.children){
+                    val nodes = c.getValue(Vocabulary::class.java)
+
+                    if (nodes != null){
+                        nodes.vocab_id = c.key
+                        listOfVocabulary.add(nodes)
+                    }
+                }
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+    }
+
+    //Search verileri çağırma
+    fun makeSearch(searchedWord:String){
+        refVocabulary.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                //verilerin üst üste binemesi için liste temizlendi
+                listOfVocabulary.clear()
+
+                for (c in p0.children){
+                    val nodes = c.getValue(Vocabulary::class.java)
+
+                    if (nodes != null){
+                        if (nodes.vocab_english!!.contains(searchedWord))
+                        {
+                            nodes.vocab_id = c.key
+                            listOfVocabulary.add(nodes)
+                        }
+                    }
+                }
+                //node nesnesi değişiklerde adptera aktarılacak
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+    }
+
 
     // alertdialog bağlantısı
     fun showAlertDialog(){
@@ -90,7 +141,16 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             val word_pron = editTextPronounce.text.toString().trim()
             val word_turkish = editTextTurkish.text.toString().trim()
 
-            Toast.makeText(applicationContext,"Informations Saved! => $word_english-$word_pron-$word_turkish",Toast.LENGTH_LONG).show()
+
+            if (word_english.isNotEmpty() && word_pron.isNotEmpty() && word_turkish.isNotEmpty()){
+                val word = Vocabulary("",word_english,word_pron,word_turkish)
+                refVocabulary.push().setValue(word)
+                Toast.makeText(applicationContext,"Informations Saved! => $word_english-$word_pron-$word_turkish",Toast.LENGTH_LONG).show()
+            }else{
+                Toast.makeText(this@VocabularyActivity,"Please, fill all of the blanks",Toast.LENGTH_SHORT).show()
+            }
+
+
         }
         alertName.setNegativeButton("Cancel"){ dialogInterface, i ->
 
@@ -98,14 +158,14 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         alertName.create().show()
     }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        Log.e("gonderilen arama",query!!)
+    //searc buton gönderilen arama
+    override fun onQueryTextSubmit(query: String): Boolean {
+        makeSearch(query)
         return true
     }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        Log.e("arama yaptıkça",newText!!)
+    // search button yazdıkça arama
+    override fun onQueryTextChange(newText: String): Boolean {
+        makeSearch(newText)
         return true
     }
 }
