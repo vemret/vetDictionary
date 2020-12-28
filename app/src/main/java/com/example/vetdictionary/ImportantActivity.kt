@@ -31,20 +31,50 @@ class ImportantActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         listOfVocabulary = ArrayList()
 
-        adapter = ImportantAdapter(this@ImportantActivity,listOfVocabulary)
+        adapter = ImportantAdapter(this@ImportantActivity,listOfVocabulary,refImportantVoabulary)
         rvImportant.adapter = adapter
 
-        showImportantOfVocabulary(false)
+        //vocab_ important == true olan verileri göster
+        showImportantOfVocabulary(true)
 
 
         toolbarImportant.title = "Important words for you"
-        toolbarImportant.subtitle = "You have ${listOfVocabulary.size} words"
         setSupportActionBar(toolbarImportant)
 
     }
 
+    //Search verileri çağırma
+    fun makeSearch(searchedWord:String,vocab_important:Boolean){
+        val query = refImportantVoabulary.orderByChild("vocab_important").equalTo(vocab_important)
+        query.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                //verilerin üst üste binemesi için liste temizlendi
+                listOfVocabulary.clear()
+
+                for (c in p0.children){
+                    val nodes = c.getValue(Vocabulary::class.java)
+
+                    if (nodes != null){
+                        if (nodes.vocab_english!!.contains(searchedWord))
+                        {
+                            nodes.vocab_id = c.key
+                            listOfVocabulary.add(nodes)
+                        }
+                    }
+                }
+                //node nesnesi değişiklerde adptera aktarılacak
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+    }
+
     //Favori verileri çağırma
     fun showImportantOfVocabulary(vocab_important:Boolean){
+        // favori veriler query olark tanımlandı
         val query = refImportantVoabulary.orderByChild("vocab_important").equalTo(vocab_important)
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
@@ -61,6 +91,8 @@ class ImportantActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 }
                 //node nesnesi değişiklerde adptera aktarılacak
                 adapter.notifyDataSetChanged()
+                //liste boyutu
+                toolbarImportant.subtitle = "You have ${listOfVocabulary.size}  important words"
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -90,13 +122,13 @@ class ImportantActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
     }
 
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        Log.e("gonderilen arama",query!!)
+    override fun onQueryTextSubmit(query: String): Boolean {
+        makeSearch(query,true)
         return true
     }
 
-    override fun onQueryTextChange(newText: String?): Boolean {
-        Log.e("arama yaptıkça",newText!!)
+    override fun onQueryTextChange(newText: String): Boolean {
+        makeSearch(newText,true)
         return true
     }
 }

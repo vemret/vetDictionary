@@ -9,8 +9,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.DatabaseReference
 
-class ImportantAdapter(private val mContext: Context, private val listOfImportant: List<Vocabulary>) : RecyclerView.Adapter<ImportantAdapter.CardViewKeeper>(){
+class ImportantAdapter(private val mContext: Context
+                       , private val listOfImportant: List<Vocabulary>
+                        , private val refImportant: DatabaseReference) : RecyclerView.Adapter<ImportantAdapter.CardViewKeeper>(){
 
     inner class CardViewKeeper(cView: View) : RecyclerView.ViewHolder(cView){
         var importantCard : CardView
@@ -43,6 +46,7 @@ class ImportantAdapter(private val mContext: Context, private val listOfImportan
         holder.imageViewImportant.setOnClickListener {
             holder.imageViewImportant.setImageResource(R.drawable.ic_star_border)
 
+            refImportant.child(important.vocab_id!!).child("vocab_important").setValue(false)
         }
         holder.importantCard.setOnClickListener {
             val ad = AlertDialog.Builder(mContext)

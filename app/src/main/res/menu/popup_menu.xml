@@ -12,6 +12,6 @@
         android:title="Delete" />
     <item
         android:id="@+id/actionImportant"
-        android:icon="@android:drawable/btn_star"
+        android:icon="@drawable/ic_favorite"
         android:title="Important" />
 </menu>

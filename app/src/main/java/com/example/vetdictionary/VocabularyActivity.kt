@@ -42,8 +42,9 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         //toolbar bilgisi
         toolbarVocabulary.title = "Vocabulary List"
-        toolbarVocabulary.subtitle = "You have ${listOfVocabulary.size} words"
+
         setSupportActionBar(toolbarVocabulary)
+
         
     }
 
@@ -88,6 +89,8 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     }
                 }
                 adapter.notifyDataSetChanged()
+                //listenin boyutu
+                toolbarVocabulary.subtitle = "You have ${listOfVocabulary.size} words"
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -141,7 +144,7 @@ class VocabularyActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             val word_pron = editTextPronounce.text.toString().trim()
             val word_turkish = editTextTurkish.text.toString().trim()
 
-
+            // Fire base veri ekleme
             if (word_english.isNotEmpty() && word_pron.isNotEmpty() && word_turkish.isNotEmpty()){
                 val word = Vocabulary("",word_english,word_pron,word_turkish)
                 refVocabulary.push().setValue(word)

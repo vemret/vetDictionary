@@ -16,8 +16,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 
 class VocabularyAdabter(private val mContext:Context
-                        ,private val listofVocabulary:List<Vocabulary>
-                        ,private val refVocabulary:DatabaseReference)
+                        , private val listofVocabulary:List<Vocabulary>
+                         , private val refVocabulary:DatabaseReference)
     : RecyclerView.Adapter<VocabularyAdabter.CardViewKeeper>() {
 
     inner class CardViewKeeper(vView: View) : RecyclerView.ViewHolder(vView){
@@ -49,11 +49,13 @@ class VocabularyAdabter(private val mContext:Context
         val vocab = listofVocabulary.get(position)
         holder.tvEnglish.text = vocab.vocab_english
         holder.tvPronounce.text = vocab.vocab_pronoun
-
+        // f5f5f5  ffdead
         if (vocab.vocab_important!!){
-            holder.vocabCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
+            holder.vocabCard.setCardBackgroundColor(Color.parseColor("#ffdead"))
+
+            //navigationView.setItemBackground(ContextCompat.getDrawable(CustomerHomeActivity.this, R.color.transparent));
         }else{
-            holder.vocabCard.setCardBackgroundColor(Color.parseColor("#E8E8E8"))
+            holder.vocabCard.setCardBackgroundColor(Color.parseColor("#f5f5f5"))
         }
 
         holder.vocabCard.setOnClickListener {
@@ -72,8 +74,18 @@ class VocabularyAdabter(private val mContext:Context
             //menu tasarımı bağlandı
             val popupMenu = PopupMenu(mContext,holder.imageViewPopup)
             popupMenu.menuInflater.inflate(R.menu.popup_menu,popupMenu.menu)
+
+            //important menu itemi iconu ayarlandı
+            val importantMenu : MenuItem = popupMenu.menu.findItem(R.id.actionImportant)
+            if (vocab.vocab_important!!){
+                importantMenu.setIcon(R.drawable.ic_favorite)
+            }else if (!vocab.vocab_important!!){
+                importantMenu.setIcon(R.drawable.ic_star_border)
+            }
+
             popupMenu.show()
             popupMenu.setForceShowIcon(true);
+
 
             //menu işlemleri
             popupMenu.setOnMenuItemClickListener {menuItem ->
@@ -91,13 +103,12 @@ class VocabularyAdabter(private val mContext:Context
                         true
                     }
                     R.id.actionImportant -> {
-                        vocab.vocab_important = !vocab.vocab_important!!
                         if(vocab.vocab_important!!){
-                            holder.vocabCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
-                            menuItem.setIcon(R.drawable.ic_favorite)
+                            refVocabulary.child(vocab.vocab_id!!).child("vocab_important").setValue(false)
+                            menuItem.setIcon(R.drawable.ic_star_border)
                         }else{
-                            holder.vocabCard.setCardBackgroundColor(Color.parseColor("#E8E8E8"))
-                            menuItem.setIcon(R.drawable.ic_exercises)
+                            refVocabulary.child(vocab.vocab_id!!).child("vocab_important").setValue(true)
+                            menuItem.setIcon(R.drawable.ic_favorite)
                         }
                         true
                     }
@@ -105,9 +116,9 @@ class VocabularyAdabter(private val mContext:Context
                     else -> false
                 }
             }
-
         }
     }
+
 
     // alertdialog bağlantısı
     fun showAlertDialog(word:Vocabulary){
@@ -130,6 +141,7 @@ class VocabularyAdabter(private val mContext:Context
             val word_pronoun = editTextPronoun.text.toString().trim()
             val word_turkish = editTextTurkish.text.toString().trim()
 
+            //Fire base Veri Güncelleme
             if (word_english.isNotEmpty() && word_pronoun.isNotEmpty() && word_turkish.isNotEmpty()){
 
                 val info = HashMap<String,Any>()
